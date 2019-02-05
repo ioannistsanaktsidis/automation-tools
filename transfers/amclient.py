@@ -496,6 +496,15 @@ class AMClient(object):
     def download_aip(self):
         return self.download_package(self.aip_uuid)
 
+    def list_locations(self):
+        """List all Storage Service locations."""
+        params = {}
+        url = "{0}/api/v2/location/".format(self.ss_url)
+        return utils._call_url_json(url,
+                                    headers=self._ss_auth_headers(),
+                                    params=json.dumps(params),
+                                    method=utils.METHOD_GET)
+
 
 def main():
 
