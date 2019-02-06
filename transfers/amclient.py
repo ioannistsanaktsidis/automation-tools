@@ -8,7 +8,6 @@ Archivematica APIs.
 """
 
 from __future__ import print_function, unicode_literals
-
 import binascii
 import base64
 from collections import defaultdict
@@ -373,26 +372,29 @@ class AMClient(object):
                             if d['current_path'].endswith(a['uuid'])]
                 for a in self.aips()}
 
-    def download_package(self, uuid):
+    def download_package(self, uuid, path=None):
         """Download the package from SS by UUID."""
         url = '{}/api/v2/file/{}/download/'.format(self.ss_url, uuid)
         response = requests.get(url, params=self._ss_auth(), stream=True)
         if response.status_code == 200:
-            try:
-                local_filename = re.findall(
-                    'filename="(.+)"',
-                    response.headers['content-disposition'])[0]
-            except KeyError:
-                # NOTE: assuming that packages are always stored as .7z
-                local_filename = 'package-{}.7z'.format(uuid)
-            if getattr(self, 'directory', None):
-                dir_ = self.directory
-                if os.path.isdir(dir_):
-                    local_filename = os.path.join(dir_, local_filename)
-                else:
-                    LOGGER.warning(
-                        'There is no directory %s; saving %s to %s instead',
-                        dir_, local_filename, os.getcwd())
+            if path:
+                local_filename = path
+            else:
+                try:
+                    local_filename = re.findall(
+                        'filename="(.+)"',
+                        response.headers['content-disposition'])[0]
+                except KeyError:
+                    # NOTE: assuming that packages are always stored as .7z
+                    local_filename = 'package-{}.7z'.format(uuid)
+                if getattr(self, 'directory', None):
+                    dir_ = self.directory
+                    if os.path.isdir(dir_):
+                        local_filename = os.path.join(dir_, local_filename)
+                    else:
+                        LOGGER.warning(
+                            'There is no directory %s; saving %s to %s instead',
+                            dir_, local_filename, os.getcwd())
             with open(local_filename, 'wb') as file_:
                 for chunk in response.iter_content(chunk_size=1024):
                     if chunk:
