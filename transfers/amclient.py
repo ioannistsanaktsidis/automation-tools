@@ -505,6 +505,24 @@ class AMClient(object):
                                     params=json.dumps(params),
                                     method=utils.METHOD_GET)
 
+    def create_package(
+            self, name="amclient-transfer", processing_config="automated"):
+        """Create a transfer using the new API v2 package endpoint."""
+        url = "{}/api/v2beta/package/".format(self.am_url)
+
+        # TODO: This code combination is not received by the MCP Server well
+        # is the problem here or there?
+        path = utils.fsencode("{}:{}".format(self.transfer_source, self.transfer_path))
+        params = {
+            'name': name,
+            'path': "{}".format(base64.b64encode(path)),
+            "processing_config": processing_config,
+        }
+        return utils._call_url_json(url,
+                                    headers=self._am_auth_headers(),
+                                    params=json.dumps(params),
+                                    method=utils.METHOD_POST)
+
 
 def main():
 
