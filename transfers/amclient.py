@@ -525,6 +525,17 @@ class AMClient(object):
                                     params=json.dumps(params),
                                     method=utils.METHOD_POST)
 
+    def extract_file(self, sip_uuid, relative_path):
+        """Extract a file, relative to an AIP's path."""
+        params = {}
+        url = "{0}/api/v2/file/{1}/extract_file/?relative_path_to_file={2}"\
+            .format(self.ss_url, sip_uuid, relative_path)
+        return utils._call_url_json(url,
+                                    headers=self._ss_auth_headers(),
+                                    params=json.dumps(params),
+                                    method=utils.METHOD_GET,
+                                    assume_json=False)
+
 
 def main():
 
